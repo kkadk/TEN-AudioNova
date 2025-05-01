@@ -1,0 +1,13 @@
+# Python/Django
+*.pyc
+__pycache__/
+db.sqlite3
+*.log
+.env
+
+# Virtual environments
+venv/
+env/
+
+# Node/Frontend (optional — if you want to ignore frontend node_modules too)
+node_modules/
