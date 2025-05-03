@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 class Artist(models.Model):
     name = models.CharField(max_length=255)
-    profile_image = models.URLField(blank=True, null=True)
+    profile__image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     genres = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -17,7 +17,7 @@ class Artist(models.Model):
 
 class Album(models.Model):
     title = models.CharField(max_length=255)
-    cover_image = models.URLField(blank=True, null=True)
+    cover_image = models.ImageField(upload_to='covers/', blank=True, null=True)
     release_date = models.DateField()
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='albums')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -28,7 +28,7 @@ class Album(models.Model):
 class Movie(models.Model):
     name = models.CharField(max_length=255, unique=True)
     release_year = models.IntegerField(blank=True, null=True)
-    poster_image = models.URLField(blank=True, null=True)
+    poster_image = models.ImageField(upload_to='posters/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -38,7 +38,7 @@ class Movie(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=255)
     duration = models.DurationField()
-    file_url = models.URLField()
+    file = models.FileField(upload_to='songs/')  
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='songs')
     album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True, blank=True, related_name='songs')
     genre = models.CharField(max_length=100)
@@ -55,7 +55,7 @@ class Playlist(models.Model):
     name = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
     is_public = models.BooleanField(default=True)
-    cover_image = models.URLField(blank=True, null=True)
+    cover_image = models.ImageField(upload_to='covers/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
