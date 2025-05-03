@@ -13,3 +13,5 @@ staticfiles/
 
 .vscode/
 *.log
+
+db.sqlite3
