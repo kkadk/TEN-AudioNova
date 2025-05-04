@@ -11,6 +11,7 @@ export const Navbar = () => {
       </div>
       <div>
         <Link to="/" className="mr-4 hover:underline">Home</Link>
+        <Link to="/about" className="mr-4 hover:underline">About</Link>
       </div>
     </nav>
   );
