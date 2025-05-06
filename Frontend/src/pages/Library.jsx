@@ -1,10 +1,10 @@
 import React from "react";
 import libraryData from "../assets/data/Library.js";
-import { FaPlus, FaSearch } from "react-icons/fa";
+import { FaPlus, FaSearch, FaPlay } from "react-icons/fa";
 
 function Library() {
   return (
-    <div className="w-[20%] bg-purple-700 mt-2 ml-2 pb-2 rounded-2xl flex flex-col">
+    <div className="w-[25%] bg-purple-700 mt-2 ml-2 pb-2 rounded-2xl flex flex-col">
       <div className="text-white font-medium flex justify-between p-4">
         <h1>Your Library</h1>
         <button className="bg-purple-500 px-3 py-1 rounded-2xl cursor-pointer flex items-center gap-1.5 hover:bg-purple-400">
@@ -35,15 +35,17 @@ function Library() {
           {libraryData.map((data, index) => (
             <div
               key={index}
-              className="bg-purple-500 flex mb-2 items-center p-2 rounded-lg cursor-pointer hover:bg-purple-400"
+              className="group/item bg-purple-500 flex mb-2 items-center p-2 rounded-lg cursor-pointer hover:bg-purple-400"
             >
-              <div className="w-20 h-20 flex-shrink-0">
+              <div className="relative w-20 h-20 flex-shrink-0">
                 <img
                   className="w-full h-full object-cover rounded-full"
                   src={data.image}
                   alt=""
                 />
+                <FaPlay className="absolute inset-0 m-auto text-white text-4xl bg-black bg-opacity-50 p-2 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />
               </div>
+
               <div className="ml-4 text-white">
                 <h2 className="text-lg font-semibold">{data.name}</h2>
                 <h3 className="text-sm">{data.role}</h3>
