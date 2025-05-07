@@ -37,15 +37,15 @@ function ArtistDetails() {
   ];
 
   return (
-    <div className="w-[100%] flex justify-between border">
+    <div className="w-full flex justify-between">
       <Library />
 
       <div className="w-[73%] bg-purple-700 mt-2 mx-2 rounded-2xl">
-        <div className="w-full h-1/3 relative">
+        <div className="w-full h-1/4 relative">
           <img
             src={image}
             alt=""
-            className="w-full h-full object-cover object-top  rounded-t-xl"
+            className="w-full h-full object-cover object-top rounded-t-xl"
           />
 
           <div className="absolute inset-0  flex flex-col justify-end p-8 text-white">
@@ -62,7 +62,7 @@ function ArtistDetails() {
           {songData.map((data, index) => (
             <div
               key={index}
-              className="h-20 py-2 px-4 mb-2 flex justify-between cursor-pointer hover:bg-purple-400"
+              className="h-20 py-2 px-4 mb-2 flex justify-between cursor-pointer hover:bg-purple-500"
             >
               <div className="w-[70%]  flex gap-4 items-center">
                 <p>{index + 1}</p>
