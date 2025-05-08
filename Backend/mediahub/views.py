@@ -113,14 +113,17 @@ class SongSearchListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Song.objects.all()
-        artist_name = self.request.query_params.get('artist')
-        movie_name = self.request.query_params.get('movie')
+        title = self.request.query_params.get('title')
+        artist = self.request.query_params.get('artist')
+        movie = self.request.query_params.get('movie')
         genre = self.request.query_params.get('genre')
 
-        if artist_name:
-            queryset = queryset.filter(artist__name__icontains=artist_name)
-        if movie_name:
-            queryset = queryset.filter(movie__name__icontains=movie_name)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+        if artist:
+            queryset = queryset.filter(artist__name__icontains=artist)
+        if movie:
+            queryset = queryset.filter(movie__name__icontains=movie)
         if genre:
             queryset = queryset.filter(genre__icontains=genre)
         
