@@ -7,7 +7,9 @@ from .serializers import (
     PlaylistSongSerializer, PlaylistDetailSerializer, LikedSongSerializer, PlaybackHistorySerializer
 )
 from django.db.models import Q
-
+from django.http import FileResponse
+import os
+from django.http import Http404
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
@@ -172,7 +174,17 @@ def play_song(request, song_id):
 
         PlaybackHistory.objects.create(user=user, song=song)
 
-        return Response({'message': 'Song played successfully', 'song_title': song.title}, status=status.HTTP_200_OK)
+        if not song.file:
+            return Response({'error': 'Audio file not available'}, status=status.HTTP_404_NOT_FOUND)
+
+        file_path = song.file.path
+
+        if not os.path.exists(file_path):
+            raise Http404("Audio file not found.")
+
+        return FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
 
     except Song.DoesNotExist:
         return Response({'error': 'Song not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
