@@ -6,6 +6,9 @@ import { Footer } from "./components/Footer";
 import { Search } from "./pages/Search";
 import Library from "./pages/Library";
 import About from "./pages/About";
+import Profile from "./pages/Profile";
+import ArtistDetails from "./pages/ArtistDetails";
+import PlayList from "./pages/PlayList";
 
 function App() {
   return (
@@ -16,10 +19,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/library" element={<Library />} />
-      </Routes>
-
-      <Routes>
         <Route path="/search" element={<Search />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/artist" element={<ArtistDetails />} />
+        <Route path="/playlist" element={<PlayList />} />
       </Routes>
 
       <Footer />
