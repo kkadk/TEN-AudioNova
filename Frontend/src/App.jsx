@@ -5,6 +5,7 @@ import { Home } from "./pages/Home";
 import { Footer } from "./components/Footer";
 import { Search } from "./pages/Search";
 import Library from "./pages/Library";
+import About from "./pages/About";
 import Profile from "./pages/Profile";
 import ArtistDetails from "./pages/ArtistDetails";
 import PlayList from "./pages/PlayList";
@@ -16,6 +17,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/library" element={<Library />} />
         <Route path="/search" element={<Search />} />
         <Route path="/profile" element={<Profile />} />
