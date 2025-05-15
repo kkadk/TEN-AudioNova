@@ -9,6 +9,7 @@ import PlayList from "./pages/PlayList";
 import Home from "./pages/Home";
 import { Footer } from "./components/Footer";
 import Sidebar from "./components/Sidebar";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <main className="flex-1 p-4">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
               <Route path="/library" element={<Library />} />
               <Route path="/search" element={<Search />} />
               <Route path="/profile" element={<Profile />} />
