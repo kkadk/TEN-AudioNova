@@ -91,6 +91,16 @@ class LikedSongViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        song = instance.song
+        self.perform_destroy(instance)
+        if song.like_count > 0:
+            song.like_count -= 1
+            song.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class PlaybackHistoryListView(generics.ListAPIView):
     serializer_class = PlaybackHistorySerializer
     permission_classes = [permissions.IsAuthenticated]
