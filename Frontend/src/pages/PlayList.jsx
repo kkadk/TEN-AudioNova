@@ -9,6 +9,7 @@ import {
   Share2,
   Bookmark,
 } from "lucide-react";
+import FloatingMusicNotes from "./FloatingMusicNotes";
 
 const songs = [
   {
@@ -28,7 +29,7 @@ const songs = [
     album: "After Hours",
     year: 2020,
     duration: 200,
-    artwork: "blinding_lights.jpg",
+    artwork: "/blinding_lights.jpg",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
   },
   {
@@ -38,7 +39,7 @@ const songs = [
     album: "Future Nostalgia",
     year: 2020,
     duration: 203,
-    artwork: "levitating.jpg",
+    artwork: "/levitating.jpg",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
   },
   {
@@ -48,7 +49,7 @@ const songs = [
     album: "Divinely Uninspired to a Hellish Extent",
     year: 2019,
     duration: 182,
-    artwork: "someone_you_loved.jpg",
+    artwork: "/someone_you_loved.jpg",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
   },
   {
@@ -58,7 +59,7 @@ const songs = [
     album: "Justice",
     year: 2021,
     duration: 198,
-    artwork: "peaches.jpg",
+    artwork: "/peaches.jpg",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
   },
 ];
@@ -69,6 +70,9 @@ const PlayList = () => {
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(1);
   const audioRef = useRef(new Audio(currentSong.audio));
+  const [liked, setLiked] = useState(false);
+  const [shared, setShared] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -77,15 +81,11 @@ const PlayList = () => {
     audio.load();
     audio.volume = volume;
 
-    if (isPlaying) {
-      audio.play();
-    }
+    if (isPlaying) audio.play();
 
     const updateProgress = () => setProgress(audio.currentTime);
     audio.addEventListener("timeupdate", updateProgress);
-    return () => {
-      audio.removeEventListener("timeupdate", updateProgress);
-    };
+    return () => audio.removeEventListener("timeupdate", updateProgress);
   }, [currentSong]);
 
   useEffect(() => {
@@ -94,7 +94,8 @@ const PlayList = () => {
 
   const togglePlay = () => {
     const audio = audioRef.current;
-    isPlaying ? audio.pause() : audio.play();
+    if (isPlaying) audio.pause();
+    else audio.play();
     setIsPlaying(!isPlaying);
   };
 
@@ -120,13 +121,10 @@ const PlayList = () => {
       2,
       "0"
     )}`;
-  const [liked, setLiked] = useState(false);
-  const [shared, setShared] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col md:flex-row">
-      {/* Song Detail Panel */}
+      <FloatingMusicNotes />
       <div className="md:w-1/2 w-full p-6 flex flex-col justify-center items-center text-center border-b md:border-b-0 md:border-r border-gray-700">
         <h1 className="text-3xl font-bold mb-4">My Favorite Playlist 🎶</h1>
         <p className="text-sm text-gray-400 mb-2">
@@ -143,7 +141,6 @@ const PlayList = () => {
           {currentSong.album} • {currentSong.year}
         </p>
 
-        {/* Progress Bar */}
         <div className="w-full mt-6 px-4">
           <input
             type="range"
@@ -162,7 +159,6 @@ const PlayList = () => {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between w-full mt-6 px-4">
-          {/* Volume Slider on the left for large devices */}
           <div className="hidden sm:flex items-center gap-2 mb-4 md:mb-0">
             <Volume2 size={16} />
             <input
@@ -176,7 +172,6 @@ const PlayList = () => {
             />
           </div>
 
-          {/* Playback Controls in the center (Always visible) */}
           <div className="flex items-center justify-center gap-6 mb-4 md:mb-0">
             <button onClick={() => handleSongChange("prev")}>
               <SkipBack size={32} />
@@ -192,7 +187,6 @@ const PlayList = () => {
             </button>
           </div>
 
-          {/* Action Icons on the right for large devices */}
           <div className="hidden sm:flex items-center gap-4">
             <button
               onClick={() => setLiked(!liked)}
@@ -214,10 +208,8 @@ const PlayList = () => {
             </button>
           </div>
 
-          {/* For Small devices: Volume and Icons side by side below controls */}
           <div className="sm:hidden flex flex-col items-center w-full gap-6 mt-4">
             <div className="flex items-center gap-4 w-full justify-between">
-              {/* Volume Slider */}
               <div className="flex items-center gap-2 w-1/2">
                 <Volume2 size={16} />
                 <input
@@ -230,8 +222,6 @@ const PlayList = () => {
                   className="w-20 h-1 accent-blue-500"
                 />
               </div>
-
-              {/* Action Icons */}
               <div className="flex items-center gap-4 w-1/2 justify-end">
                 <button
                   onClick={() => setLiked(!liked)}
@@ -257,7 +247,6 @@ const PlayList = () => {
         </div>
       </div>
 
-      {/* Playlist Panel */}
       <div className="md:w-1/2 w-full p-4 bg-gray-800 overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4">Songs in Playlist</h2>
         <ul className="space-y-4">
@@ -280,7 +269,7 @@ const PlayList = () => {
               />
               <div>
                 <p className="font-semibold">{song.title}</p>
-                <p className="text-sm text-gray-400">{song.artist}</p>
+                <p className="text-gray-400 text-sm">{song.artist}</p>
               </div>
             </li>
           ))}

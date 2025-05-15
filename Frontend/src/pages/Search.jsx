@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AiOutlineSearch, AiOutlineArrowLeft } from "react-icons/ai"; // Importing icons
+import { AiOutlineSearch, AiOutlineArrowLeft } from "react-icons/ai";
+import FloatingMusicNotes from "./FloatingMusicNotes";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,20 +66,14 @@ const Search = () => {
     { name: "Punjabi", color: "bg-fuchsia-700" },
   ];
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
   useEffect(() => {
     const query = searchQuery.toLowerCase().trim();
-
     if (!query) {
-      setResults([]); // Show no results when search is empty
+      setResults([]);
       return;
     }
 
-    // Filter songs based on the search query
-    const filteredSongs = allSongs
+    const filtered = allSongs
       .filter(
         (song) =>
           song.title.toLowerCase().includes(query) ||
@@ -87,54 +82,45 @@ const Search = () => {
       )
       .map((song) => ({ ...song, type: "song" }));
 
-    // Only display filtered songs (not categories)
-    setResults(filteredSongs);
+    setResults(filtered);
   }, [searchQuery]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      setSearchQuery(e.target.value);
-    }
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
+  const handleSearchChange = (e) => setSearchQuery(e.target.value);
+  const handleKeyDown = (e) =>
+    e.key === "Enter" && setSearchQuery(e.target.value);
+  const handleClearSearch = () => setSearchQuery("");
 
   return (
     <div className="bg-black text-white min-h-screen px-4 py-8">
+      <FloatingMusicNotes />
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-6">Search</h1>
 
-        {/* Search Bar with Icons */}
+        {/* Search bar */}
         <div className="relative mb-6">
-          {/* Input Field with Left and Right Icons */}
-          <div className="flex items-center overflow-hidden ">
-            {/* Back Icon */}
+          <div className="flex items-center bg-gray-800 rounded-md overflow-hidden px-4">
             {searchQuery && (
               <AiOutlineArrowLeft
-                className="mr-4 text-gray-400 cursor-pointer"
+                className="text-gray-400 cursor-pointer mr-2"
                 size={20}
                 onClick={handleClearSearch}
               />
             )}
-            {/* Input Field */}
             <Input
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
               placeholder="What do you want to listen to?"
-              className="w-full bg-gray-800 text-white placeholder-gray-400 focus-visible:ring-transparent"
+              className="flex-grow bg-transparent text-white placeholder-gray-400 border-none focus:ring-0"
             />
-            {/* Search Icon */}
             {!searchQuery && (
-              <AiOutlineSearch className="ml-4 text-gray-400" size={20} />
+              <AiOutlineSearch className="ml-2 text-gray-400" size={20} />
             )}
           </div>
         </div>
 
-        {/* Browse Categories (when no search or no results) */}
+        {/* Categories */}
         {searchQuery === "" && (
           <>
             <h2 className="text-xl font-semibold mb-4">Browse all</h2>
@@ -142,7 +128,7 @@ const Search = () => {
               {categories.map((category, index) => (
                 <div
                   key={index}
-                  className={`rounded-lg h-28 flex items-end p-4 font-semibold text-white ${category.color}`}
+                  className={`rounded-lg h-28 flex items-end p-4 font-semibold text-white ${category.color} hover:scale-105 transition-transform duration-200`}
                 >
                   {category.name}
                 </div>
@@ -151,7 +137,7 @@ const Search = () => {
           </>
         )}
 
-        {/* Search Results */}
+        {/* Search results */}
         {searchQuery !== "" && (
           <div className="mt-6 space-y-6">
             {results.length === 0 ? (
@@ -160,32 +146,33 @@ const Search = () => {
               results.map((result) => (
                 <Card
                   key={result.id}
-                  className="bg-gray-800 text-white p-4 rounded-lg shadow-xl hover:bg-gray-700 transition-all"
+                  className="bg-gray-800 text-white p-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      {/* Placeholder Image for Album Cover */}
                       <img
                         src={`/${encodeURIComponent(result.img)}`}
                         alt={result.title}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover"
                       />
                       <div>
-                        <h3 className="text-xl font-semibold">
+                        <h3 className="text-lg font-semibold">
                           {result.title}
                         </h3>
                         <p className="text-sm text-gray-400">{result.artist}</p>
                         <p className="text-sm text-gray-500">{result.album}</p>
                       </div>
                     </div>
-                    <div className="flex gap-2 justify-end">
-                      {/* Play and Favorite Buttons */}
-                      <Button variant="link" className="text-blue-500 px-0">
+                    <div className="flex gap-3 justify-end">
+                      <Button
+                        variant="link"
+                        className="text-blue-400 hover:underline px-0"
+                      >
                         ▶ Play
                       </Button>
                       <Button
                         variant="ghost"
-                        className="hover:text-red-500 text-gray-500 px-0"
+                        className="text-gray-400 hover:text-red-500 transition"
                       >
                         ♥
                       </Button>
