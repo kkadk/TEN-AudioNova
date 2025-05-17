@@ -23,4 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('mediahub.urls')),  
     path('api/auth/', include('accounts.urls')),
+    path('api/ai/', include('ai_generator.urls')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

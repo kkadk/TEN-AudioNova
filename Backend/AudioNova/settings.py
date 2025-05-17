@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'mediahub',
     'accounts',
+    'ai_generator',
 ]
 
 MIDDLEWARE = [
