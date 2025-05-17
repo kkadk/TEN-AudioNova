@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Artist, Album, Movie, Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
+from .models import Artist, Album, Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
 
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,21 +11,11 @@ class AlbumSerializer(serializers.ModelSerializer):
         model = Album
         fields = '__all__'
 
-class MovieSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = '__all__'
-
 class SongSerializer(serializers.ModelSerializer):
     artist = serializers.SlugRelatedField(
         read_only=True,
         slug_field='name'
     )
-    movie = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name'
-    )
-
     class Meta:
         model = Song
         fields = '__all__'

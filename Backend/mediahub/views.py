@@ -1,9 +1,9 @@
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .models import Artist, Album, Movie, Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
+from .models import Artist, Album, Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
 from .serializers import (
-    ArtistSerializer, AlbumSerializer, MovieSerializer, SongSerializer, PlaylistSerializer,
+    ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer,
     PlaylistSongSerializer, PlaylistDetailSerializer, LikedSongSerializer, PlaybackHistorySerializer
 )
 from django.db.models import Q
@@ -23,15 +23,6 @@ class ArtistViewSet(viewsets.ModelViewSet):
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
-
-class MovieViewSet(viewsets.ModelViewSet):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -127,15 +118,12 @@ class SongSearchListView(generics.ListAPIView):
         queryset = Song.objects.all()
         title = self.request.query_params.get('title')
         artist = self.request.query_params.get('artist')
-        movie = self.request.query_params.get('movie')
         genre = self.request.query_params.get('genre')
 
         if title:
             queryset = queryset.filter(title__icontains=title)
         if artist:
             queryset = queryset.filter(artist__name__icontains=artist)
-        if movie:
-            queryset = queryset.filter(movie__name__icontains=movie)
         if genre:
             queryset = queryset.filter(genre__icontains=genre)
         

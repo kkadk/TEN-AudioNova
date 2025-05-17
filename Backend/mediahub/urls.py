@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    ArtistViewSet, AlbumViewSet, MovieViewSet, SongViewSet,
+    ArtistViewSet, AlbumViewSet, SongViewSet,
     PlaylistViewSet, PlaylistSongViewSet, PlaylistDetailView, LikedSongViewSet, PlaybackHistoryListView,
     PublicPlaylistListView, SongSearchListView, like_song, unlike_song, play_song
 )
@@ -9,7 +9,6 @@ from .views import (
 router = DefaultRouter()
 router.register(r'artists', ArtistViewSet)
 router.register(r'albums', AlbumViewSet)
-router.register(r'movies', MovieViewSet)
 router.register(r'songs', SongViewSet)
 router.register(r'playlists', PlaylistViewSet, basename='playlist')
 router.register(r'playlist-songs', PlaylistSongViewSet, basename='playlistsong')

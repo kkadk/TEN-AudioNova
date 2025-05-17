@@ -25,16 +25,6 @@ class Album(models.Model):
     def __str__(self):
         return self.title
 
-class Movie(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    release_year = models.IntegerField(blank=True, null=True)
-    poster_image = models.ImageField(upload_to='posters/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-
 class Song(models.Model):
     title = models.CharField(max_length=255)
     duration = models.DurationField()
@@ -42,7 +32,6 @@ class Song(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='songs')
     album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True, blank=True, related_name='songs')
     genre = models.CharField(max_length=100)
-    movie = models.ForeignKey(Movie, on_delete=models.SET_NULL, blank=True, null=True, related_name='songs')
     play_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
