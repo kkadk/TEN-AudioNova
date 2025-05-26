@@ -10,6 +10,9 @@ import Home from "./pages/Home";
 import { Footer } from "./components/Footer";
 import Sidebar from "./components/Sidebar";
 import About from "./pages/About";
+import Browse from './pages/Browse';
+import Login from './pages/Login';
+import SignUp from "./pages/Signup";
 
 function App() {
   return (
@@ -20,12 +23,15 @@ function App() {
         <div className="flex flex-col flex-1">
           <Navbar />
 
-          <main className="flex-1 p-4">
+          <main className="flex-1">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/library" element={<Library />} />
               <Route path="/search" element={<Search />} />
+              <Route path="/browse" element={<Browse />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/artist" element={<ArtistDetails />} />
               <Route path="/playlist" element={<PlayList />} />
