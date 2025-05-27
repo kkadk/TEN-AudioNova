@@ -3,37 +3,15 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-
-class Artist(models.Model):
-    name = models.CharField(max_length=255)
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
-    genres = models.CharField(max_length=255, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Album(models.Model):
-    title = models.CharField(max_length=255)
-    cover_image = models.ImageField(upload_to='covers/', blank=True, null=True)
-    release_date = models.DateField()
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='albums')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title
-
 class Song(models.Model):
-    title = models.CharField(max_length=255)
-    duration = models.DurationField()
-    file = models.FileField(upload_to='songs/', blank=True, null=True)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='songs')
-    album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True, blank=True, related_name='songs')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='songs')
+    title = models.CharField(max_length=255, unique=True)
+    duration = models.DurationField(blank=True, null=True)
+    file = models.FileField(upload_to='songs/')
     genre = models.CharField(max_length=100)
     play_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
+    public = models.BooleanField(default=True)  
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

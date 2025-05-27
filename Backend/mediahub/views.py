@@ -1,45 +1,50 @@
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .models import Artist, Album, Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
+from .models import Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
 from .serializers import (
-    ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer,
+    SongSerializer, PlaylistSerializer,
     PlaylistSongSerializer, PlaylistDetailSerializer, LikedSongSerializer, PlaybackHistorySerializer
 )
 from django.db.models import Q
 from django.http import FileResponse
 import os
 from django.http import Http404
-
-class ArtistViewSet(viewsets.ModelViewSet):
-    queryset = Artist.objects.all()
-    serializer_class = ArtistSerializer
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
-
-class AlbumViewSet(viewsets.ModelViewSet):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
-
+from mutagen.mp3 import MP3
+from mutagen.wave import WAVE
+from datetime import timedelta
+from rest_framework.exceptions import PermissionDenied
 class SongViewSet(viewsets.ModelViewSet):
-    queryset = Song.objects.all()
     serializer_class = SongSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
+    def get_queryset(self):
+        return Song.objects.filter(user=self.request.user)
 
+    def perform_create(self, serializer):
+        instance =serializer.save(user=self.request.user)
+        if not instance.duration and instance.file:
+            try:
+                file_path = instance.file.path
+                if file_path.endswith('.mp3'):
+                    audio = MP3(file_path)
+                    instance.duration = timedelta(seconds=int(audio.info.length))
+                elif file_path.endswith('.wav'):
+                    audio = WAVE(file_path)
+                    instance.duration = timedelta(seconds=int(audio.info.length))
+                instance.save()
+            except Exception as e:
+                print(f"Could not determine duration: {e}")
 
+    def perform_update(self, serializer):
+        if serializer.instance.user != self.request.user:
+            raise permissions.PermissionDenied("You do not have permission to update this song.")
+        serializer.save()
 
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            raise permissions.PermissionDenied("You do not have permission to delete this song.")
+        instance.delete()
 
 class PlaylistViewSet(viewsets.ModelViewSet):
     serializer_class = PlaylistSerializer
@@ -60,8 +65,27 @@ class PlaylistSongViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         playlist = serializer.validated_data['playlist']
+        song = serializer.validated_data['song']
+
         if playlist.user != self.request.user:
-            raise permissions.PermissionDenied("You do not own this playlist.")
+            raise PermissionDenied("You do not own this playlist.")
+
+        if not song.public and song.user != self.request.user:
+            raise PermissionDenied("The Song is private and you do not own it.")
+
+        serializer.save()
+
+    
+    def perform_update(self, serializer):
+        playlist = serializer.instance.playlist
+        song = serializer.validated_data.get('song', serializer.instance.song)
+
+        if playlist.user != self.request.user:
+            raise PermissionDenied("You do not own this playlist.")
+
+        if not song.public and song.user != self.request.user:
+            raise PermissionDenied("The Song is private and you do not own it.")
+
         serializer.save()
 
 
@@ -115,15 +139,12 @@ class SongSearchListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        queryset = Song.objects.all()
+        queryset = Song.objects.filter(public=True)
         title = self.request.query_params.get('title')
-        artist = self.request.query_params.get('artist')
         genre = self.request.query_params.get('genre')
 
         if title:
             queryset = queryset.filter(title__icontains=title)
-        if artist:
-            queryset = queryset.filter(artist__name__icontains=artist)
         if genre:
             queryset = queryset.filter(genre__icontains=genre)
         

@@ -1,24 +1,16 @@
 from rest_framework import serializers
-from .models import Artist, Album, Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
-
-class ArtistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Artist
-        fields = '__all__'
-
-class AlbumSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Album
-        fields = '__all__'
+from django.contrib.auth.models import User
+from .models import Song, Playlist, PlaylistSong, LikedSong, PlaybackHistory
 
 class SongSerializer(serializers.ModelSerializer):
-    artist = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name'
+    user = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
     )
     class Meta:
         model = Song
         fields = '__all__'
+        read_only_fields = ['user', 'play_count', 'like_count']
 
 class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
