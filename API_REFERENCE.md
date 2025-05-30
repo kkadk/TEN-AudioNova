@@ -9,9 +9,9 @@ Register a new user.
 **Body:**
 ```json
 {
-  "username": "user123",
-  "email": "user@example.com",
-  "password": "yourpassword"
+  "username": "<username>",
+  "email": "<prefix>@<domain>.com",
+  "password": "<pwd>"  # must be 8 characters long.
 }
 ```
 
@@ -38,8 +38,8 @@ Login and receive JWT tokens.
 **Body:**
 ```json
 {
-  "username": "user123",
-  "password": "yourpassword"
+  "username": "<username>",
+  "password": "<pwd>"
 }
 ```
 
@@ -85,20 +85,20 @@ Authorization: Bearer <access_token>
 **Response:**
 ```json
 {
-    "count": 1,
-    "next": null,
-    "previous": null,
+    "count": 1,         # |\
+    "next": null,       # | - pagination meta data  
+    "previous": null,   # |/
     "results": [
         {
             "id": 8,
-            "user": "apiteste",
-            "title": "Apitest",
+            "user": "<username>",
+            "title": "<song_title>",
             "duration": "00:00:10",
-            "file": "http://localhost:8000/media/songs/song_nY4klfi.wav",
-            "genre": "AI",
+            "file": "http://localhost:8000/media/songs/<song_file>",
+            "genre": "<song_genre>",
             "play_count": 0,
             "like_count": 0,
-            "public": false,
+            "public": false,  # Default is true; can be updated via PUT or set during POST
             "created_at": "2025-05-30T05:16:03.440708Z"
         }
     ]
@@ -127,14 +127,14 @@ genre=lofi
 ```json
 {
   "id": 2,
-  "user": "user123",
-  "title": "Lo-fi Chill",
-  "duration": "00:00:10",
+  "user": "<username>",
+  "title": "<song_title>",
+  "duration": "00:00:10",  # Duration is automatically calculated using mutagen
   "file": "http://localhost:8000/media/songs/<audio_file>",
-  "genre": "lofi",
+  "genre": "<song_genre>",
   "play_count": 0,
   "like_count": 0,
-  "public": true,  # Default is public; can be updated via PUT or set during POST
+  "public": true,  # Default is trueo; can be updated via PUT or set during POST
   "created_at": "2025-05-30T05:16:03.440708Z"
 }
 ```
@@ -177,14 +177,15 @@ Create a new playlist.
 **Headers:**
 ```
 Authorization: Bearer <access_token>
-Content-Type: application/json
+Content-Type: multipart/form-data
 ```
 
-**Body:**
-```json
+**Body(form-data):**
+```
 {
   "name": "Evening Vibes",
-  "is_public": true
+  "is_public": true,
+  "cover_image": "<image_file>"
 }
 ```
 
@@ -194,7 +195,8 @@ Content-Type: application/json
   "id": 3,
   "name": "Evening Vibes",
   "is_public": true,
-  "songs": []
+  "cover_image": "http://localhost:8000/media/covers/<image_file>",
+  "created_at": "2025-05-30T09:21:19.019503Z"
 }
 ```
 
