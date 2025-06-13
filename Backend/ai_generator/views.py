@@ -19,14 +19,21 @@ class GenerateSongAPIView(APIView):
         if not prompt:
             return Response({"error": "Prompt is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            response = requests.post(FASTAPI_URL, data={"prompt": prompt})
-            response.raise_for_status()
-            file_url = response.json().get("file_url")
-            if not file_url:
-                raise ValueError("No file_url returned.")
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
+        # try:
+        #     response = requests.post(FASTAPI_URL, data={"prompt": prompt})
+        #     response.raise_for_status()
+        #     file_url = response.json().get("file_url")
+        #     if not file_url:
+        #         raise ValueError("No file_url returned.")
+        # except Exception as e:
+        #     return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
+        response = requests.post(FASTAPI_URL, data={"prompt": prompt})
+        print("FastAPI status code:", response.status_code)
+        print("FastAPI response text:", response.text)
+        response.raise_for_status()
+        file_url = response.json().get("file_url")
+        if not file_url:
+            raise ValueError("No file_url returned.")
 
         song = GeneratedSong.objects.create(
             user=request.user,
