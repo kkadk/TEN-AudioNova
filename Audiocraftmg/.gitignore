@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+
+.env/
+env/
+.venv/
+venv/
+
+# Audio/media outputs
+*.wav
+
+# System files MAC-specific
+.DS_Store
