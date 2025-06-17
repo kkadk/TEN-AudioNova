@@ -6,7 +6,7 @@ import os
 import uuid
 import re
 
-GEN_DIR = "../TEN-AudioNova/Backend/media/musicgen"
+GEN_DIR = "../Backend/media/musicgen"
 os.makedirs(GEN_DIR, exist_ok=True)
 
 MEDIA_URL_BASE = "http://localhost:8000/media/musicgen"
