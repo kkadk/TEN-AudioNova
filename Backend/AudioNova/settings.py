@@ -111,6 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Custom authentication backends
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.EmailBackend',  # Custom email authentication backend
+    'django.contrib.auth.backends.ModelBackend',  # Default Django authentication backend
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -149,6 +154,14 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',  # Enables filtering with DRF
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day', 
+        'user': '1000/day'
+    },
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -167,5 +180,9 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-#for now email is sent to console
+# Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Optional: Make email field unique at the database level
+# You can add this to ensure email uniqueness
+# Note: You'll need to create a migration for this change

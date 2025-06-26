@@ -46,7 +46,7 @@ Login and receive JWT tokens.
 **Response:**
 ```json
 {
-  "refresh": "<JWT_REFRESH_TOKEN>"
+  "refresh": "<JWT_REFRESH_TOKEN>",
   "access": "<JWT_ACCESS_TOKEN>",
 }
 ```
