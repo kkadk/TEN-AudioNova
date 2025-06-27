@@ -1,4 +1,3 @@
-```markdown
 # 🎵 TEN AudioNova
 
 TEN AudioNova is a full-stack music streaming and AI music generation application where users can upload songs, create playlists, listen to tracks, and generate music using text prompts powered by AI.
