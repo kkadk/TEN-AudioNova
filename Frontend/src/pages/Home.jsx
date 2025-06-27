@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+// src/pages/Home.jsx
+import React, { useEffect, useState } from "react";
+
+import {
+  getPublicPlaylists,
+  getPlaylistDetailsWithSongs,
+} from "../api/playlists";
+import MusicManagement from "../components/MusicManagement";
 import { IoMdArrowRoundUp } from "react-icons/io";
 import {
   IoPlay,
   IoHeart,
-  IoAdd,
-  IoPause,
-  IoPlaySkipForward,
-  IoPlaySkipBack,
-  IoClose,
-  IoVolumeHigh,
 } from "react-icons/io5";
+
 
 const FloatingMusicNotes = () => {
   const notes = ["♪", "♫", "♬", "♩", "♮", "♯"];
@@ -51,147 +53,42 @@ const FloatingMusicNotes = () => {
   );
 };
 
-const MiniPlayer = ({
-  currentTrack,
-  isPlaying,
-  onPlayPause,
-  onClose,
-  onNext,
-  onPrevious,
-}) => {
-  const [volume, setVolume] = useState(40);
-  const [progress, setProgress] = useState(60);
-
-  if (!currentTrack) return null;
-
-  return (
-    <div className="fixed bottom-8 right-8 w-96 h-54 bg-gradient-to-r from-gray-900/95 to-black/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 z-50 overflow-hidden">
-      {/* Progress bar */}
-      <div className="w-full h-1 bg-white/20">
-        <div
-          className="h-full bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      <div className="p-6 mb-2">
-        {/* Track info and close button */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center space-x-3 flex-1">
-            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-              {currentTrack.img ? (
-                <img
-                  src={currentTrack.img}
-                  alt={currentTrack.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xl">
-                  {currentTrack.emoji}
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-white font-semibold text-sm truncate">
-                {currentTrack.title}
-              </h4>
-              <p className="text-white/60 text-xs">Unknown Artist</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-white/60 hover:text-white transition-colors p-1"
-          >
-            <IoClose className="text-lg" />
-          </button>
-        </div>
-
-        {/* Controls */}
-        <div className="flex items-center justify-center space-x-4 mt-8 mb-3">
-          <button
-            onClick={onPrevious}
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            <IoPlaySkipBack className="text-xl" />
-          </button>
-
-          <button
-            onClick={onPlayPause}
-            className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center hover:from-blue-400 hover:to-purple-500 transition-all duration-200 shadow-lg"
-          >
-            {isPlaying ? (
-              <IoPause className="text-white text-lg" />
-            ) : (
-              <IoPlay className="text-white text-lg ml-0.5" />
-            )}
-          </button>
-
-          <button
-            onClick={onNext}
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            <IoPlaySkipForward className="text-xl" />
-          </button>
-        </div>
-
-        {/* Volume control */}
-        <div className="flex items-center space-x-2">
-          <IoVolumeHigh className="text-white/60 text-sm" />
-          <div className="flex-1 h-1 bg-white/20 rounded-full">
-            <div
-              className="h-full bg-gradient-to-r from-blue-400 to-purple-500 rounded-full transition-all duration-200"
-              style={{ width: `${volume}%` }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const Home = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playlists, setPlaylists] = useState([]);
 
-  const playlists = [
-    { id: "lofi", title: "Lo-Fi Mix", emoji: "💽" },
-    {
-      id: "morning",
-      title: "Daily Mix 1",
-      img: "https://randomuser.me/api/portraits/men/45.jpg",
-    },
-    {
-      id: "evening",
-      title: "Chill Vibes",
-      img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=300",
-    },
-    {
-      id: "chill",
-      title: "Daily Mix 2",
-      img: "https://randomuser.me/api/portraits/women/44.jpg",
-    },
-    {
-      id: "relax",
-      title: "Relax & Unwind",
-      img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=300",
-    },
-    { id: "focus1", title: "Focus Flow", emoji: "🎯" },
-    { id: "deepwork", title: "Deep Work", emoji: "🧠" },
-    { id: "coding", title: "Coding Beats", emoji: "💻" },
-    { id: "midnight", title: "Midnight Drive", emoji: "🌃" },
-    { id: "nature", title: "Nature Sounds", emoji: "🌿" },
-  ];
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      try {
+        const data = await getPublicPlaylists();
+        const detailed = await Promise.all(
+          data.results.map(async (pl) => {
+            const details = await getPlaylistDetailsWithSongs(pl.id);
+            return {
+              ...pl,
+              songs: details.songs,
+              img: pl.cover_image,
+              emoji: "🎵",
+            };
+          })
+        );
+        setPlaylists(detailed);
+      } catch (err) {
+        console.error("Failed to load playlists", err);
+      }
+    };
+
+    fetchPlaylists();
+  }, []);
 
   const handlePlayTrack = (track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
   };
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
+  const handlePlayPause = () => setIsPlaying(!isPlaying);
   const handleClosePlayer = () => {
     setCurrentTrack(null);
     setIsPlaying(false);
@@ -212,24 +109,12 @@ const Home = () => {
     setCurrentTrack(playlists[prevIndex]);
   };
 
-  const handleWorkoutClick = () => {
-    const workoutTrack = {
-      id: "workout",
-      title: "Workout Beats",
-      img: "https://imgs.search.brave.com/uUGDp5ikkZN_HW_gamN-vG7MDfwtQjHcRGRlnmPD4fA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWdz/LnNlYXJjaC5icmF2/ZS5jb20vRW9NS0Nu/dUxqa3NsV3lmVkRl/NS1ZZUxSX3lQZTRt/UG1oMU9rZUNjYjJ3/TS9yczpmaXQ6NTAw/OjA6MDowL2c6Y2Uv/YUhSMGNITTZMeTl0/WldScC9ZUzVwYzNS/dlkydHdhRzl1L2J5/NWpiMjB2YVdRdk1U/RXovTVRFek5qTTJN/aTl3YUc5MElIby9i/eTV2V3Jsb2FFOWtk/Mkl5TFcxc2JTNXFi/MmNYUkNqMDJNVEI0/TmtKdWJ6RTFRQ05y/UFRJZ0ptTjlCeUp1/QlNqVWdiVy9jY21K/YkdGSFltSjNSa1JF/VlNMM0Y1Yms5dF9r/Vkhka2JXaTFNWFVi/TVM1c0NqQWpaams1/WVJsSDJjVk5uWkdw/OFhBbEkxWUZaZTBU/WTBjVnBFZkFWXzVL/ZFE/Y2o4Mld5OUw4/YUhSMF93WVVkZ01X/TW9TM01YM2ZKQz9k/a0FvblNwUmEydjNW/UVNqWTVSbWQyYmtG/eWNIUnc/d3ZFMnJQ/alUwakpoWlNyUExF/OEJXMWhfUWVSUlQw/ZTdwVFlqVnNjZzll/bVd4UVdKcEt6WXd6/SmdsOXpOaUg2ZlYw/Wl8oQzRydjlEY2c/WFZoUlUvN3piSmlB/alZpVU93X05N",
-    };
-    handlePlayTrack(workoutTrack);
-  };
-
   return (
     <div className="relative flex min-h-screen bg-gradient-to-br from-[#0a0e17] via-[#1a1f2e] to-[#0f1419] text-[#F4F4F5] overflow-hidden">
       <FloatingMusicNotes />
-
-      {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
 
       <main className="flex-1 p-4 sm:p-6 md:p-8 z-10 w-full relative">
-        {/* Header with gradient text */}
         <div className="mb-8 sm:mb-12">
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-2 bg-gradient-to-r from-[#72c4fa] via-[#a6e1fa] to-[#72c4fa] bg-clip-text text-transparent drop-shadow-2xl">
             Welcome back
@@ -239,7 +124,6 @@ const Home = () => {
           </p>
         </div>
 
-        {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
           <QuickActionCard
             icon="🧠"
@@ -254,11 +138,10 @@ const Home = () => {
             title="Upload a song"
             subtitle="Share your music"
             gradient="from-[#4facfe] to-[#00f2fe]"
-            onClick={() => console.log("Upload clicked")}
+            onClick={() => setShowUploadModal(true)}
           />
         </div>
 
-        {/* Made for You Section */}
         <div className="mb-8">
           <h3 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
             Made for You
@@ -272,7 +155,7 @@ const Home = () => {
           {playlists.map((playlist) => (
             <PlaylistCard
               key={playlist.id}
-              title={playlist.title}
+              title={playlist.name}
               emoji={playlist.emoji}
               img={playlist.img}
               isHovered={hoveredCard === playlist.id}
@@ -282,17 +165,11 @@ const Home = () => {
             />
           ))}
         </div>
-      </main>
 
-      {/* Mini Player */}
-      <MiniPlayer
-        currentTrack={currentTrack}
-        isPlaying={isPlaying}
-        onPlayPause={handlePlayPause}
-        onClose={handleClosePlayer}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
+          <div>
+            <MusicManagement />
+          </div>
+      </main>
     </div>
   );
 };

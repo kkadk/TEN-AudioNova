@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, Music, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { register } from "../api/auth";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -33,10 +34,11 @@ const SignUp = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.fullName.trim()) {
+    const fullNameNoSpaces = formData.fullName.replace(/\s/g, "");
+    if (!fullNameNoSpaces) {
       newErrors.fullName = "Full name is required";
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Name must be at least 2 characters";
+    } else if (fullNameNoSpaces.length < 2) {
+      newErrors.fullName = "Name must be at least 2 characters (excluding spaces)";
     }
 
     if (!formData.email) {
@@ -68,16 +70,19 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log("Sign up attempted:", formData);
-      alert("Account created successfully!");
-    }, 2000);
+    try {
+      const data = await register(formData.fullName,formData.email, formData.password);
+      console.log('Login successful:', data);
+      // store token, redirect, etc.
+    } catch (err) {
+      console.error('Login failed:', err);
+      alert('Invalid credentials'); // simple error display
+    }
   };
 
   const handleSocialSignUp = (provider) => {
@@ -168,7 +173,7 @@ const SignUp = () => {
           </div>
 
           {/* Social Sign Up */}
-          <div className="relative z-10 grid grid-cols-3 gap-3">
+          {/* <div className="relative z-10 grid grid-cols-3 gap-3">
             <button
               onClick={() => handleSocialSignUp("Google")}
               className="flex items-center justify-center py-3 cursor-pointer bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/20 transition-all group"
@@ -223,7 +228,7 @@ const SignUp = () => {
                 />
               </svg>
             </button>
-          </div>
+          </div> */}
 
 
  {/* Divider */}

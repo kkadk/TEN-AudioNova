@@ -1,6 +1,7 @@
 // ( _ )  ye whatsapp se le rha hoon apka naam mujhe abhi pata nahi hai maine poocha bhi apse lekin aap is par kaar kar sakte ho
 // apko signup page bhi banana hai
 import React, { useState } from "react";
+import { login } from "../api/auth";
 import {
   IoEye,
   IoEyeOff,
@@ -11,7 +12,7 @@ import {
   IoLogoApple,
   IoLogoFacebook,
 } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -40,11 +41,11 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
+    // if (!formData.email) {
+    //   newErrors.email = "Email is required";
+    // } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    //   newErrors.email = "Please enter a valid email";
+    // }
 
     if (!formData.password) {
       newErrors.password = "Password is required";
@@ -56,21 +57,31 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     if (!validateForm()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  //     setIsLoading(true);
-  //     // Simulate API call
-  //     setTimeout(() => {
-  //       setIsLoading(false);
-  //       console.log("Login attempted:", formData);
-  //     }, 2000);
-  //   };
+    setIsLoading(true);
+    try {
+      const data = await login(formData.email, formData.password);
+      console.log('Login successful:', data);
+      // store token, redirect, etc.
+      if (data?.access) {
+        localStorage.setItem('accessToken', data.access);
+      }
+      if (data?.refresh) {
+        localStorage.setItem('refreshToken', data.refresh);
+      }
+      window.location.href = "/";
+    } catch (err) {
+      console.error('Login failed:', err);
+      alert('Invalid credentials'); // simple error display
+    }
+  };
 
-  //   const handleSocialLogin = (provider) => {
-  //     console.log(`Login with ${provider}`);
-  //   };
+  const handleSocialLogin = (provider) => {
+    console.log(`Login with ${provider}`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0e17] via-[#1a1f2e] to-[#0f1419] flex items-center justify-center p-4">
@@ -167,9 +178,8 @@ const Login = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border ${
-                    errors.email ? "border-red-400" : "border-white/20"
-                  } focus:border-[#72c4fa] focus:outline-none focus:ring-2 focus:ring-[#72c4fa]/20 transition-all text-white placeholder-white/50`}
+                  className={`w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border ${errors.email ? "border-red-400" : "border-white/20"
+                    } focus:border-[#72c4fa] focus:outline-none focus:ring-2 focus:ring-[#72c4fa]/20 transition-all text-white placeholder-white/50`}
                   placeholder="Enter your email"
                 />
               </div>
@@ -190,9 +200,8 @@ const Login = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-12 py-3 bg-white/10 backdrop-blur-sm rounded-xl border ${
-                    errors.password ? "border-red-400" : "border-white/20"
-                  } focus:border-[#72c4fa] focus:outline-none focus:ring-2 focus:ring-[#72c4fa]/20 transition-all text-white placeholder-white/50`}
+                  className={`w-full pl-10 pr-12 py-3 bg-white/10 backdrop-blur-sm rounded-xl border ${errors.password ? "border-red-400" : "border-white/20"
+                    } focus:border-[#72c4fa] focus:outline-none focus:ring-2 focus:ring-[#72c4fa]/20 transition-all text-white placeholder-white/50`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -229,6 +238,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
+              onClick={handleSubmit}
               className="w-full py-3 bg-gradient-to-r from-[#72c4fa] to-[#a6e1fa] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (

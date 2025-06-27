@@ -65,6 +65,8 @@
 import React from "react";
 import { FaHeart, FaListUl, FaCompactDisc } from "react-icons/fa";
 import FloatingMusicNotes from "./FloatingMusicNotes";
+import MusicManagement from "../components/MusicManagement";
+import UploadSong from "../components/UploadSong";
 
 const libraryItems = [
   {
@@ -103,6 +105,13 @@ const Library = () => {
             <p className="text-zinc-300">{item.description}</p>
           </div>
         ))}
+      </div>
+            <div>
+        <UploadSong showUploadModal={true}
+    setShowUploadModal={true}/>
+      </div>
+      <div>
+        <MusicManagement />
       </div>
     </div>
   );

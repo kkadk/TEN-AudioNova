@@ -34,6 +34,30 @@ const Sidebar = () => {
           <AiOutlineRobot className="text-[#F4F4F5] group-hover:text-[#084b8a]" />
           <span>AI Generator</span>
         </Link>
+
+        <Link
+          to="/library"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#a6e1fa] hover:text-[#084b8a] transition-all"
+        >
+          <AiOutlineRobot className="text-[#F4F4F5] group-hover:text-[#084b8a]" />
+          <span>library</span>
+        </Link>
+
+        <Link
+          to="/artist"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#a6e1fa] hover:text-[#084b8a] transition-all"
+        >
+          <AiOutlineRobot className="text-[#F4F4F5] group-hover:text-[#084b8a]" />
+          <span>artist</span>
+        </Link>
+
+        <Link
+          to="/playlist"
+          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#a6e1fa] hover:text-[#084b8a] transition-all"
+        >
+          <AiOutlineRobot className="text-[#F4F4F5] group-hover:text-[#084b8a]" />
+          <span>playlist</span>
+        </Link>
       </nav>
 
       <Link
