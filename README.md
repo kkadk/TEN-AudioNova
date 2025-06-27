@@ -111,10 +111,3 @@ Full API reference available in:
 MIT License - use freely with attribution.
 
 ---
-
-## 🙌 Support
-
-Found a bug? Want to contribute? Raise an issue or PR!
-
-```
-
