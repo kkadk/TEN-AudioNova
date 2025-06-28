@@ -109,3 +109,23 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'email': user.email,
             }
         }
+    
+class RefreshTokenSerializer(serializers.Serializer):
+    """
+    Serializer for refreshing access tokens using refresh token from cookies
+    """
+    def validate(self, attrs):
+        request = self.context['request']
+        refresh_token = request.COOKIES.get('refresh_token')
+        
+        if not refresh_token:
+            raise serializers.ValidationError('Refresh token not found in cookies.')
+        
+        try:
+            refresh = RefreshToken(refresh_token)
+            return {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),  # Return new refresh token for rotation
+            }
+        except Exception as e:
+            raise serializers.ValidationError('Invalid or expired refresh token.')

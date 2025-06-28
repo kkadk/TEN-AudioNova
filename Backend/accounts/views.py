@@ -5,11 +5,12 @@ from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
 import jwt
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 import datetime
-from .serializers import UserRegistrationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, EmailTokenObtainPairSerializer
+from .serializers import UserRegistrationSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, EmailTokenObtainPairSerializer, RefreshTokenSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]
@@ -78,6 +79,154 @@ class VerifyEmailView(APIView):
 
 class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get tokens from serializer
+        tokens = serializer.validated_data
+        refresh_token = tokens.pop('refresh')  # Remove refresh token from response data
+        
+        # Create response with only access token and user data
+        response = Response({
+            'access': tokens['access'],
+            'user': tokens['user'],
+            'message': 'Login successful'
+        }, status=status.HTTP_200_OK)
+        
+        # Set refresh token as HTTP-only cookie
+        response.set_cookie(
+            'refresh_token',
+            refresh_token,
+            max_age=60 * 60 * 24 * 7,  # 7 days (same as refresh token lifetime)
+            httponly=True,
+            secure=settings.DEBUG is False,  # Only use secure cookies in production
+            samesite='Lax'  # Adjust based on your frontend domain setup
+        )
+        
+        return response
+
+
+class CookieTokenRefreshView(APIView):
+    
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh_token')
+        
+        if not refresh_token:
+            return Response(
+                {'error': 'Refresh token not found in cookies'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        try:
+            # Validate the current refresh token
+            refresh_obj = RefreshToken(refresh_token)
+            
+            # Get user info
+            user_id = refresh_obj.payload.get('user_id')
+            user = User.objects.get(id=user_id)
+            
+            # Generate new access token
+            new_access_token = str(refresh_obj.access_token)
+            
+            # Check if we should rotate refresh tokens (based on SIMPLE_JWT settings)
+            if getattr(settings, 'SIMPLE_JWT', {}).get('ROTATE_REFRESH_TOKENS', False):
+                # Generate new refresh token
+                new_refresh_obj = RefreshToken.for_user(user)
+                new_refresh_token = str(new_refresh_obj)
+                new_access_token = str(new_refresh_obj.access_token)
+                
+                # Blacklist old refresh token if configured
+                if getattr(settings, 'SIMPLE_JWT', {}).get('BLACKLIST_AFTER_ROTATION', False):
+                    try:
+                        refresh_obj.blacklist()
+                    except AttributeError:
+                        # Blacklist might not be available
+                        pass
+                
+                # Create response with new access token
+                response = Response({
+                    'access': new_access_token,
+                    'user': {
+                        'id': user.id,
+                        'username': user.username,
+                        'email': user.email,
+                    }
+                }, status=status.HTTP_200_OK)
+                
+                # Set new refresh token as HTTP-only cookie
+                response.set_cookie(
+                    'refresh_token',
+                    new_refresh_token,
+                    max_age=60 * 60 * 24 * 7,  # 7 days
+                    httponly=True,
+                    secure=settings.DEBUG is False,
+                    samesite='Lax'
+                )
+                
+                return response
+            else:
+                # Don't rotate refresh tokens, just return new access token
+                return Response({
+                    'access': new_access_token,
+                    'user': {
+                        'id': user.id,
+                        'username': user.username,
+                        'email': user.email,
+                    }
+                }, status=status.HTTP_200_OK)
+            
+        except TokenError as e:
+            # Clear the invalid cookie
+            response = Response(
+                {'error': 'Invalid or expired refresh token'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            response.delete_cookie('refresh_token')
+            return response
+            
+        except User.DoesNotExist:
+            response = Response(
+                {'error': 'User not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+            response.delete_cookie('refresh_token')
+            return response
+
+
+class LogoutView(APIView):
+    """
+    Logout view that clears the HTTP-only cookie
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh_token')
+        
+        # Try to blacklist the refresh token if it exists
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except TokenError:
+                pass  # Token was already invalid
+        
+        response = Response({
+            'message': 'Logged out successfully'
+        }, status=status.HTTP_200_OK)
+        
+        # Clear the refresh token cookie
+        response.delete_cookie('refresh_token')
+        
+        return response
+
 
 
 class ForgotPasswordView(APIView):
