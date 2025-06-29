@@ -26,7 +26,7 @@ class RegisterUserView(APIView):
                 algorithm="HS256"
             )
 
-            verification_link = f"http://127.0.0.1:8000/api/auth/verify-email/{token}/"
+            verification_link = f"http://localhost:5173/verify-email/{token}/"
 
             try:
                 send_mail(
@@ -250,7 +250,9 @@ class ForgotPasswordView(APIView):
             )
 
             # Create password reset link
-            reset_link = f"http://127.0.0.1:8000/api/auth/reset-password/{token}/"
+            # reset_link = f"http://127.0.0.1:8000/api/auth/reset-password/{token}/"
+            reset_link = f"http://localhost:5173/reset-password/{token}/"
+
 
             # Send password reset email
             try:

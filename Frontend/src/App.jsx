@@ -15,6 +15,9 @@ import Login from './pages/Login';
 import SignUp from "./pages/Signup";
 import { MiniPlayerProvider } from './context/MiniPlayerContext';
 import MiniPlayer from './components/MiniPlayer';
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -36,6 +39,9 @@ function App() {
                 <Route path="/browse" element={<Browse />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/artist" element={<ArtistDetails />} />
                 <Route path="/playlist" element={<PlayList />} />

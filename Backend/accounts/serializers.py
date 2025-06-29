@@ -72,11 +72,10 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'  # Tell the serializer to use email field
-    
+    username_field = 'email'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove username field and add email field
         self.fields.pop('username', None)
         self.fields['email'] = serializers.EmailField(required=True)
 
@@ -85,18 +84,18 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
         password = attrs.get('password')
 
         if not email or not password:
-            raise serializers.ValidationError('Email and password are required.')
+            raise serializers.ValidationError({'non_field_errors': ['Email and password are required.']})
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError('Invalid email or password.')
+            raise serializers.ValidationError({'non_field_errors': ['Invalid email or password.']})
 
         if not user.check_password(password):
-            raise serializers.ValidationError('Invalid email or password.')
+            raise serializers.ValidationError({'non_field_errors': ['Invalid email or password.']})
 
         if not user.is_active:
-            raise serializers.ValidationError('User account is inactive. Please verify your email.')
+            raise serializers.ValidationError({'non_field_errors': ['User account is inactive. Please verify your email.']})
 
         refresh = RefreshToken.for_user(user)
 
@@ -109,6 +108,8 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'email': user.email,
             }
         }
+
+  
     
 class RefreshTokenSerializer(serializers.Serializer):
     """

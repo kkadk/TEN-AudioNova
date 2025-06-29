@@ -160,9 +160,10 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day', 
-        'user': '1000/day'
-    },
+    'anon': '10/minute',  
+        'user': '100/minute'
+},
+
 }
 
 CORS_ALLOW_CREDENTIALS = True
@@ -221,8 +222,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = ''    # your Gmail email
-EMAIL_HOST_PASSWORD = ''  # your app password, NOT your gmail password
+EMAIL_HOST_USER = 'nikhil.connectnow@gmail.com'    # your Gmail email
+EMAIL_HOST_PASSWORD = 'mafb asgm lvlu ysgp'  # your app password, NOT your gmail password
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
