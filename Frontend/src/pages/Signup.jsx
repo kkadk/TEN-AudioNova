@@ -70,20 +70,49 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) return;
 
-    setIsLoading(true);
-    try {
-      const data = await register(formData.fullName,formData.email, formData.password);
-      console.log('Login successful:', data);
-      // store token, redirect, etc.
-    } catch (err) {
-      console.error('Login failed:', err);
-      alert('Invalid credentials'); // simple error display
+  //   setIsLoading(true);
+  //   try {
+  //     const data = await register(formData.fullName,formData.email, formData.password);
+  //     console.log('Login successful:', data);
+  //     // store token, redirect, etc.
+  //   } catch (err) {
+  //     console.error('Login failed:', err);
+  //     alert('Invalid credentials'); // simple error display
+  //   }
+  // };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  setIsLoading(true);
+  try {
+    const data = await register(formData.fullName, formData.email, formData.password);
+    console.log("Registration successful:", data);
+
+    // Optionally show a success message or redirect
+    alert("Registration successful! Check your email to verify your account.");
+  } catch (err) {
+    console.error("Registration failed:", err);
+    // Check for API error response
+    if (err.response?.data) {
+      const apiErrors = err.response.data;
+      const newErrors = {};
+      if (apiErrors.email) newErrors.email = apiErrors.email[0];
+      if (apiErrors.password) newErrors.password = apiErrors.password[0];
+      setErrors(newErrors);
+    } else {
+      alert("Something went wrong. Please try again.");
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleSocialSignUp = (provider) => {
     console.log(`Sign up with ${provider}`);
