@@ -20,12 +20,11 @@ TEN AudioNova allows users to:
 ```
 TEN-AudioNova/
 ├── Backend/                     # Django project
-│   ├── accounts/               # User registration, email verification, JWT auth
+│   ├── accounts/               # User registration, email verification, JWT 
 │   ├── ai_generator/           # Handles AI music generation + download
 │   ├── AudioNova/              # Django main project directory
 │   ├── mediahub/               # Music library, playlists, playback
 │   ├── media/                  # Stores uploaded/generated audio
-├── audiocraft-project/         # FastAPI + MusicGen service
 ├── Frontend/                   # frontend
 
 ```
@@ -34,11 +33,11 @@ TEN-AudioNova/
 
 ## ⚙️ Technology Stack
 
-| Component         | Tech Used                       |
-|------------------|----------------------------------|
+| Component         | Tech Used                        |
+|------------------|-----------------------------------|
 | Backend API       | Django + Django REST Framework   |
 | Auth              | JWT (SimpleJWT), email verify    |
-| AI Music Engine   | FastAPI + Meta MusicGen (Audiocraft) |
+| AI Music Engine   | Meta MusicGen (HuggingFace)      |
 | Audio Storage     | Django Media folder              |
 | Search & Playlists| Custom REST endpoints            |
 
@@ -72,38 +71,35 @@ TEN-AudioNova/
 ### 🤖 AI Music Generator (`/api/ai/`)
 - `POST /generate/` — Submit prompt to generate music  
 - `GET /generated-songs/` — View your AI-generated songs  
-- `GET /generated-songs/<id>/download/` — Secure download(authenticated owner only)
+- `GET /generated-songs/<id>/download/` — Secure download(authenticated users only)
 
 ---
 
-## 🤖 MusicGen Setup (FastAPI + Audiocraft)
+## 🤖 Backend Setup After Cloning the TEN-AudioNova
 
-> Requires: **Python 3.9.x**, **PyTorch 2.1.0**, **ffmpeg**
+> Requires: **Python 3**
 
 ### Setup Instructions:
-
-```bash
-# Step into the FastAPI project
-cd audiocraft-project
-python3.9 -m venv env
-source env/bin/activate
-
-# Install PyTorch first
-pip install torch==2.1.0
-
-# Then audiocraft (stable or latest)
-pip install -U git+https://github.com/facebookresearch/audiocraft.git
-
-# Install ffmpeg if not available
-sudo apt install ffmpeg   # or use conda
-
-# Run the FastAPI server
-uvicorn musicgen_api.main:app --reload --port 8001
+For MacOS
 ```
-
-### File Output:
-- Audio is saved in: `Backend/media/musicgen/`
-- Filenames follow: `prompt_cleaned_<uuid>.wav`
+# Step into the TEN-AudioNova/Backend
+python3 -m venv .venv
+source .venv/bin/activate #For MacOS
+```
+For Windows
+```
+# Step into the TEN-AudioNova/Backend
+python3 -m venv .venv
+.venv\Scripts\activate #For Windows
+```
+Platform Independent
+```
+pip install -r requirements.txt
+#after installation
+python manage.py migrate
+#after database migrations
+python manage.py runserver
+```
 
 
 ## 🧠 Credits
