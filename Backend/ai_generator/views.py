@@ -8,8 +8,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import GeneratedSong
 from .serializers import GeneratedSongSerializer
+from .musicgen_service import generate_music
 
-FASTAPI_URL = "http://localhost:8001/generate/"
+# FASTAPI_URL = "http://localhost:8001/generate/"
 
 class GenerateSongAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -19,30 +20,25 @@ class GenerateSongAPIView(APIView):
         if not prompt:
             return Response({"error": "Prompt is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # try:
-        #     response = requests.post(FASTAPI_URL, data={"prompt": prompt})
-        #     response.raise_for_status()
-        #     file_url = response.json().get("file_url")
-        #     if not file_url:
-        #         raise ValueError("No file_url returned.")
-        # except Exception as e:
-        #     return Response({"error": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
-        response = requests.post(FASTAPI_URL, data={"prompt": prompt})
-        print("FastAPI status code:", response.status_code)
-        print("FastAPI response text:", response.text)
-        response.raise_for_status()
-        file_url = response.json().get("file_url")
-        if not file_url:
-            raise ValueError("No file_url returned.")
-
-        song = GeneratedSong.objects.create(
-            user=request.user,
-            prompt=prompt,
-            file_url=file_url
-        )
-        serializer = GeneratedSongSerializer(song, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        try:
+            # Generate music directly using our integrated service
+            file_url = generate_music(prompt)
+            
+            # Create the song record
+            song = GeneratedSong.objects.create(
+                user=request.user,
+                prompt=prompt,
+                file_url=file_url
+            )
+            
+            serializer = GeneratedSongSerializer(song, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to generate music: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class GeneratedSongViewSet(viewsets.ModelViewSet):
     serializer_class = GeneratedSongSerializer
@@ -54,7 +50,7 @@ class GeneratedSongViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-
+        
 class DownloadGeneratedSongAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
