@@ -3,7 +3,7 @@ services:
     name: ten-audionova-backend
     env: python
     plan: free
-    buildCommand: "./build.sh"
+    buildCommand: "bash build.sh"
     startCommand: "gunicorn AudioNova.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DJANGO_SECRET_KEY
