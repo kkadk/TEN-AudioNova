@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: ten-audionova-backend
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn AudioNova.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        fromEnvVar: DJANGO_SECRET_KEY
+      - key: DEBUG
+        value: "False"
+      - key: EMAIL_HOST_USER
+        fromEnvVar: EMAIL_HOST_USER
+      - key: EMAIL_HOST_PASSWORD
+        fromEnvVar: EMAIL_HOST_PASSWORD
+      - key: DATABASE_URL
+        fromDatabase:
+          name: TEN-AudioNovaDB
+
+databases:
+  - name: TEN-AudioNovaDB
+    plan: free
