@@ -26,3 +26,11 @@ numpy
 regex
 tokenizers
 filelock
+
+# Render deployment 
+gunicorn
+whitenoise
+
+# PostgreSQL database adapter
+psycopg2-binary
+dj-database-url
